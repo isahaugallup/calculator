@@ -399,6 +399,17 @@
     return n.toFixed(dec !== undefined ? dec : 2);
   }
 
+  function toMMSS(decMins) {
+    if (isNaN(decMins) || decMins === null || decMins === undefined) return '—';
+    const negative = decMins < 0;
+    const abs = Math.abs(decMins);
+    const mins = Math.floor(abs);
+    const secs = Math.round((abs - mins) * 60);
+    const prefix = negative ? '−' : '';
+    if (secs === 0) return prefix + mins + ' min';
+    return prefix + mins + ' min ' + secs + ' sec';
+  }
+
   function average(arr) {
     const valid = arr.filter(x => !isNaN(x));
     if (valid.length === 0) return NaN;
@@ -451,7 +462,7 @@
 
     meanDec.forEach((d, i) => {
       const el = document.getElementById(`conv-${i}`);
-      if (el) el.textContent = isNaN(d) ? '' : fmt(d) + ' min';
+      if (el) el.textContent = isNaN(d) ? '' : toMMSS(d);
     });
 
     const avgContracted = average(contractedDec);
@@ -471,11 +482,11 @@
 
     const loi = offsetOverage * avgCpm;
 
-    document.getElementById('res-avg-contracted').textContent = isNaN(avgContracted) ? '—' : fmt(avgContracted) + ' min';
-    document.getElementById('res-avg-vendor').textContent     = isNaN(avgVendor)     ? '—' : fmt(avgVendor)     + ' min';
-    document.getElementById('res-rfq').textContent            = isNaN(rfqFactor)     ? '—' : fmt(rfqFactor)     + ' min';
-    document.getElementById('res-avg-mean').textContent       = isNaN(avgMean)       ? '—' : fmt(avgMean)       + ' min';
-    document.getElementById('res-overage').textContent        = isNaN(overage)       ? '—' : fmt(overage)       + ' min';
+    document.getElementById('res-avg-contracted').textContent = toMMSS(avgContracted);
+    document.getElementById('res-avg-vendor').textContent     = toMMSS(avgVendor);
+    document.getElementById('res-rfq').textContent            = toMMSS(rfqFactor);
+    document.getElementById('res-avg-mean').textContent       = toMMSS(avgMean);
+    document.getElementById('res-overage').textContent        = toMMSS(overage);
 
     const loiEl      = document.getElementById('res-loi');
     const pill       = document.getElementById('status-pill');
@@ -511,14 +522,14 @@
     }
 
     document.getElementById('breakdown').innerHTML = `
-      <div class="br-row"><span class="br-k">Avg contracted minutes (F)</span><span class="br-v">${fmt(avgContracted)} min</span></div>
-      <div class="br-row"><span class="br-k">Avg vendor-reported length (G)</span><span class="br-v">${fmt(avgVendor)} min</span></div>
-      <div class="br-row"><span class="br-k">EN → in-language factor (K) = G − F</span><span class="br-v">${fmt(rfqFactor, 4)} min</span></div>
-      <div class="br-row"><span class="br-k">Avg mean length (I)</span><span class="br-v">${fmt(avgMean)} min</span></div>
-      <div class="br-row"><span class="br-k">Minutes of overage (J) = I − F</span><span class="br-v">${fmt(overage, 4)} min</span></div>
-      <div class="br-row"><span class="br-k">Offset overage (L) = J − K</span><span class="br-v">${fmt(offsetOverage, 4)} min</span></div>
+      <div class="br-row"><span class="br-k">Avg contracted minutes (F)</span><span class="br-v">${toMMSS(avgContracted)}</span></div>
+      <div class="br-row"><span class="br-k">Avg vendor-reported length (G)</span><span class="br-v">${toMMSS(avgVendor)}</span></div>
+      <div class="br-row"><span class="br-k">EN → in-language factor (K) = G − F</span><span class="br-v">${toMMSS(rfqFactor)}</span></div>
+      <div class="br-row"><span class="br-k">Avg mean length (I)</span><span class="br-v">${toMMSS(avgMean)}</span></div>
+      <div class="br-row"><span class="br-k">Minutes of overage (J) = I − F</span><span class="br-v">${toMMSS(overage)}</span></div>
+      <div class="br-row"><span class="br-k">Offset overage (L) = J − K</span><span class="br-v">${toMMSS(offsetOverage)}</span></div>
       <div class="br-row"><span class="br-k">Avg cost per minute (N)</span><span class="br-v">${currency} ${fmt(avgCpm, 2)}</span></div>
-      <div class="br-row"><span class="br-k">LOI = L × N</span><span class="br-v">${fmt(offsetOverage, 4)} × ${fmt(avgCpm, 2)} = ${loi >= 0 ? '+' : '−'}${currency} ${absLoi.toFixed(2)}</span></div>
+      <div class="br-row"><span class="br-k">LOI = L × N</span><span class="br-v">${toMMSS(offsetOverage)} × ${fmt(avgCpm, 2)} = ${loi >= 0 ? '+' : '−'}${currency} ${absLoi.toFixed(2)}</span></div>
     `;
   }
 
